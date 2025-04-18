@@ -8,3 +8,10 @@ CREATE TABLE users (
     access_token UUID DEFAULT uuid_generate_v4(),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS used_tokens (
+    id SERIAL PRIMARY KEY,
+    user_guid VARCHAR(36) NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    used_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

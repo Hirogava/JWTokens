@@ -19,8 +19,8 @@ func GetAccessRefreshToken(manager *db.Manager, w http.ResponseWriter, r *http.R
 	}
 
 	var requestData struct {
-		ID string `json:"id"`
-		IP string `json:"ip"`
+		ID    string `json:"id"`
+		IP    string `json:"ip"`
 		Email string `json:"email"`
 	}
 
@@ -38,26 +38,25 @@ func GetAccessRefreshToken(manager *db.Manager, w http.ResponseWriter, r *http.R
 		if err != nil {
 			log.Println("Ошибка при создании пользователя:", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return 
+			return
 		}
 	} else if err != nil {
 		log.Println("Ошибка при получении пользователя:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return 
+		return
 	}
 
 	jsonResponse, err := updateUser(manager, user)
 	if err != nil {
 		log.Println("Ошибка при обновлении пользователя:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return 
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 }
-
 
 func RefreshAccessToken(manager *db.Manager, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
@@ -67,9 +66,9 @@ func RefreshAccessToken(manager *db.Manager, w http.ResponseWriter, r *http.Requ
 	}
 
 	var requestData struct {
-		AccessToken string `json:"accessToken"`
+		AccessToken  string `json:"accessToken"`
 		RefreshToken string `json:"refreshToken"`
-		ID string `json:"id"`
+		ID           string `json:"id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
@@ -85,11 +84,29 @@ func RefreshAccessToken(manager *db.Manager, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	jsonResponse, err := updateUser(manager, user)
+	accessToken, refreshToken, refreshTokenHash, err := tokens.UpdateTokens(manager, user, requestData.RefreshToken, requestData.AccessToken)
 	if err != nil {
-		log.Println("Ошибка при обновлении пользователя:", err)
+		log.Println("Ошибка при обновлении токенов:", err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	if _, err := users.UpdateUserRefreshToken(manager, user.Guid, refreshTokenHash); err != nil {
+		log.Println("Ошибка при обновлении токена пользователя:", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return 
+		return
+	}
+
+	responseData := map[string]interface{}{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	}
+
+	jsonResponse, err := json.Marshal(responseData)
+	if err != nil {
+		log.Println("Ошибка при сериализации ответа:", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -110,7 +127,7 @@ func updateUser(manager *db.Manager, user models.User) ([]byte, error) {
 	}
 
 	responseData := map[string]interface{}{
-		"accessToken": accesTokenString,
+		"accessToken":  accesTokenString,
 		"refreshToken": refreshToken,
 	}
 
