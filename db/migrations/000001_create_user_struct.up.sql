@@ -1,0 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE users (
+    guid INT NOT NULL,
+    ip VARCHAR(255) NOT NULL,
+    refresh_token VARCHAR(255) NOT NULL
+);
