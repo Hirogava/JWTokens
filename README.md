@@ -8,13 +8,18 @@
 - JWT (HS512 алгоритм)
 - PostgreSQL
 - bcrypt для хеширования Refresh токенов
+- Docker и Docker Compose для контейнеризации
 
 ## Требования
 
-- Go 1.21 или выше
-- PostgreSQL 14 или выше
+- Docker и Docker Compose
+- Или локально:
+  - Go 1.21 или выше
+  - PostgreSQL 16 или выше
 
 ## Установка и запуск
+
+### Запуск через Docker (рекомендуется)
 
 1. Клонируйте репозиторий:
 ```bash
@@ -28,9 +33,45 @@ cp .env_example .env
 ```
 
 3. Настройте переменные окружения в `.env`:
+```env
+# Настройки базы данных
+DB_USER=postgres
+DB_PASSWORD=your_super_duper_password
+DB_NAME=med
+DB_HOST=db
+DB_PORT=5432
+
+# Настройки приложения
+SERVER_PORT=8080
 ```
-DB_CONNECTION_STRING=
-SERVER_PORT=
+
+4. Запустите сервис:
+```bash
+docker-compose up -d
+```
+
+5. Проверьте статус контейнеров:
+```bash
+docker-compose ps
+```
+
+### Локальный запуск
+
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/Hirogava/JWTokens.git
+cd JWTokens
+```
+
+2. Создайте файл `.env` на основе `.env_example`:
+```bash
+cp .env_example .env
+```
+
+3. Настройте переменные окружения в `.env`:
+```env
+DB_CONNECTION_STRING="user=postgres password=your_super_duper_password dbname=med host=localhost port=5432 sslmode=disable"
+SERVER_PORT=8080
 ```
 
 4. Запустите миграции базы данных:
@@ -58,7 +99,7 @@ go run main.go
 {
     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
     "refreshToken": "dGhpcyBpcyBhIHNlY3JldCB0b2tlbg==",
-    "id" : "3f7..."
+    "id": "3f7e188c-060a-4662-b216-b476dbf1f321"
 }
 ```
 
@@ -80,7 +121,7 @@ go run main.go
 {
     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
     "refreshToken": "bmV3IHNlY3JldCB0b2tlbg==",
-    "id" : "3f7..."
+    "id": "3f7e188c-060a-4662-b216-b476dbf1f321"
 }
 ```
 
@@ -147,6 +188,12 @@ go run main.go
    - Защита от повторного использования токенов
    - Автоматическая очистка старых токенов
 
+4. **Docker:**
+   - Контейнеризация приложения и базы данных
+   - Автоматическое создание и миграция базы данных
+   - Healthcheck для базы данных
+   - Персистентное хранение данных
+
 ## Обработка ошибок
 
 Сервис возвращает следующие HTTP статусы:
@@ -171,3 +218,24 @@ go run main.go
 - GUID: `3f7e188c-060a-4662-b216-b476dbf1f321`
 - IP: `127.0.0.1`
 - Email: `test@example.com`
+
+## Управление Docker-контейнерами
+
+### Полезные команды
+
+```bash
+# Запуск сервиса
+docker-compose up -d
+
+# Остановка сервиса
+docker-compose down
+
+# Просмотр логов
+docker-compose logs -f
+
+# Пересборка и запуск
+docker-compose up -d --build
+
+# Проверка статуса контейнеров
+docker-compose ps
+```
