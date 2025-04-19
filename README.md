@@ -57,7 +57,8 @@ go run main.go
 ```json
 {
     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "dGhpcyBpcyBhIHNlY3JldCB0b2tlbg=="
+    "refreshToken": "dGhpcyBpcyBhIHNlY3JldCB0b2tlbg==",
+    "id" : "3f7..."
 }
 ```
 
@@ -78,7 +79,8 @@ go run main.go
 ```json
 {
     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "bmV3IHNlY3JldCB0b2tlbg=="
+    "refreshToken": "bmV3IHNlY3JldCB0b2tlbg==",
+    "id" : "3f7..."
 }
 ```
 

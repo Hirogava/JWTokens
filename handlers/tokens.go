@@ -127,6 +127,7 @@ func updateUser(manager *db.Manager, user models.User) ([]byte, error) {
 	}
 
 	responseData := map[string]interface{}{
+		"id" : user.Guid,
 		"accessToken":  accesTokenString,
 		"refreshToken": refreshToken,
 	}
